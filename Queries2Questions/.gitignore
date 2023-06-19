@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+resources/
+
+generated_questions/
+
+test.csv
+
+unique_templates.py
+random_template_examples.ipynb
