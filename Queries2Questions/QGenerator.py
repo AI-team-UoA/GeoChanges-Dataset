@@ -52,13 +52,14 @@ Dict_instances_type_mapping={
     #"COUNTY_NAME_2":"tsnchange:County",
 }
 
-Condition_Names=["COUNTY_NAME", "COUNTY_RELATION", "CHANGE_TYPE", "COUNTY_NAME_2", "STATE_NAME"]
+Condition_Names=["COUNTY_NAME", "COUNTY_RELATION", "CHANGE_TYPE", "COUNTY_NAME_2", "STATE_NAME", "STATE_NAME_2"]
 
 types_to_uris={
     "COUNTY_NAME":"/",
     "STATE_NAME":'/',
     "CHANGE_TYPE":"#",
     "COUNTY_NAME_2":"/",
+     "STATE_NAME_2":'/',
     "COUNTY_RELATION":"sf"
 }
 
@@ -90,6 +91,7 @@ class question_template_picker:
         f_list= row['Filters']
         print(f_list)
         used_the_date = False
+        used_geometry = False
         for f in f_list:
             if f["f_type"] == "temporal":
                 if used_the_date:
@@ -108,7 +110,13 @@ class question_template_picker:
                     row["Uris_match"]["DATE_NAME"] = "in " + date_str
                     # print(row["Uris_match"])
             elif f["f_type"] =="spatial":
+                used_geometry = True
                 questions_temp = questions_temp[questions_temp["GEO_RELATION"]]
+
+        if used_the_date == False:
+            questions_temp = questions_temp[questions_temp["DATE_NAME"]==False]
+        if used_geometry == False:
+            questions_temp = questions_temp[questions_temp["GEO_RELATION"]==False]
         questions_temp = self.predicate_filtering(questions_temp, row)
         print(row["Uris_match"])
         return questions_temp  
@@ -201,6 +209,16 @@ def extract_word_types(sentence, keyword):
     return None
 
 
+def camel_to_words(camel_string):
+    # Use regular expression to find all occurrences of uppercase letters
+    words = re.findall(r'[A-Z][a-z]*', camel_string)
+    
+    # Join the found words into a single string with spaces
+    words_with_spaces = ' '.join(words)
+    
+    return words_with_spaces
+
+
 class question_production:
     def __init__(self, df_picked_templates):
         self.df_questions=df_picked_templates.copy()
@@ -209,13 +227,12 @@ class question_production:
         if title_form:
             return (uri.split(types_to_uris[k])[-1].title()).replace("_", " ")
         else:
-            return (uri.split(types_to_uris[k])[-1].lower()).replace("_", " ")
+            return camel_to_words(uri.split(types_to_uris[k])[-1].replace("_", " ")).lower()
 
     def replace_variables(self, row):
         if not row["Questions_templates"]:
             return " "
         question=random.choice(row["Questions_templates"])
-        print("a")
         for k,v in row["Uris_match"].items():
             type_with_version = extract_word_types(question, k)
             temp_v = v
@@ -231,9 +248,9 @@ class question_production:
                     temp_v = random.choice([item["original"] for item in synonyms[v]])
                 else:
                     temp_v = random.choice([item[version] for item in synonyms[v]])
-                print(temp_v)
+                # print(temp_v)
             elif k != "DATE_NAME":
-                temp_v = self.clear_uri(k, v, k == "COUNTY_NAME" or k == "STATE_NAME" or k == "COUNTY_NAME_2")
+                temp_v = self.clear_uri(k, v, k == "COUNTY_NAME" or k == "STATE_NAME" or k == "COUNTY_NAME_2" or k == "STATE_NAME_2")
             question = question.replace(type_with_version, temp_v, 1)
         return question
 
