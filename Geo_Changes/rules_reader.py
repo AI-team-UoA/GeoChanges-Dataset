@@ -3,6 +3,8 @@ from collections import OrderedDict
 
 from model.rule import Rule
 
+from configuration import question_template_path, rules_path
+
 # target_types_dict = {"DATE": TIME.Interval, "COUNTY": TSN.County, "GEOMETRY": GEO.Geometry, "CHANGE": TSN.Change,
 #                     "EVENT": SEM.Event, "STATE": TSN.State}
 target_types_dict = {"DATE": "time:Interval", "COUNTY": "tsnchange:County", "GEOMETRY": "Geo:Geometry",
@@ -12,8 +14,8 @@ target_types_dict = {"DATE": "time:Interval", "COUNTY": "tsnchange:County", "GEO
 # Loads the rules from the given file
 # Returns a dictionary with Rule items
 def get_rules():
-    tsv_file = open("resources/rules3.tsv")
-    question_templates_file = open("resources/Checked_Question_Templates.csv")
+    tsv_file = open(rules_path)
+    question_templates_file = open(question_template_path)
 
     read_tsv = csv.reader(tsv_file, delimiter="\t")
     question_templates_csv = csv.reader(question_templates_file, delimiter=",")

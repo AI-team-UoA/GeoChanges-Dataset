@@ -10,7 +10,7 @@ from urllib.request import urlopen
 ENDPOINT_URL = "http://pyravlos2.di.uoa.gr:8080/ushistoricalcounties/Query?view=HTML&handle=download&query=@QUERY@&format=SPARQL/JSON"
 
 def run_online(query:str, limit: int = None):
-    print("Running Query online...")
+    #print("Running Query online...")
     # query = edit_query(query)
     limit_str = ""
     if limit:
@@ -21,7 +21,7 @@ def run_online(query:str, limit: int = None):
     url = ENDPOINT_URL.replace("@QUERY@", urllib.parse.quote_plus(
         sparql_query))
 
-    print(sparql_query)
+    #print(sparql_query)
 
     try:
         time1 = datetime.datetime.now()
@@ -36,12 +36,12 @@ def run_online(query:str, limit: int = None):
     time_diff = time2 - time1
 
     output = output.read()
-    print(" Done", flush=True)
+    #print(" Done", flush=True)
 
     json_result = json.loads(output.decode('utf-8'))
     results = []
     for dict_ in json_result["results"]['bindings']:
         results.append({"?"+k: v['value'] for k, v in dict_.items()})
 
-    print(results)
+    #print(results)
     return results

@@ -14,7 +14,7 @@ import rules_reader
 from kg_api_access import query
 from model.sparql_query_graph import SPARQLQueryGraph
 from query_filter_adder import add_geo_relation, add_temporal_filters, add_spatial_filters, node_properties
-from configuration import allowed_select_node_types, not_allowed_uri_nodes, select_exception_rule_ids, online_exceptions
+from configuration import allowed_select_node_types, not_allowed_uri_nodes, select_exception_rule_ids, online_exceptions, rule_type, experiment_path
 from endpoint_access import run_online
 class IndexedClass:
 
@@ -39,19 +39,23 @@ class QueryGeneratorFromRules:
     # Returns a dictionary for each edge between 2 counties versions, checks if they come from the same or different county
     def versions_of_same_county(self, rule):       
         same_county_node_versions={}
+        if rule_type == "state":
+            entity_type = "State"
+        else:
+            entity_type = "County"
         county1=None
         county2=None
 
         for edge in rule.edges:
-            if edge[0].split("_")[0] == "tsnchange:CountyVersion" and edge[1].split("_")[0] == "tsnchange:CountyVersion":
+            if edge[0].split("_")[0] == "tsnchange:"+entity_type+"Version" and edge[1].split("_")[0] == "tsnchange:"+entity_type+"Version":
                 for n1,n2 in rule.edges:
-                    if n1 == edge[0] and n2.split("_")[0] == "tsnchange:County":
+                    if n1 == edge[0] and n2.split("_")[0] == "tsnchange:"+entity_type:
                         county1 = n2
-                    elif n2 == edge[0] and n1.split("_")[0] == "tsnchange:County":
+                    elif n2 == edge[0] and n1.split("_")[0] == "tsnchange:"+entity_type:
                         county2 = n1
-                    if n1 == edge[1] and n2.split("_")[0] == "tsnchange:County":
+                    if n1 == edge[1] and n2.split("_")[0] == "tsnchange:"+entity_type:
                         county2 = n2
-                    elif n2 == edge[1] and n1.split("_")[0] == "tsnchange:County":
+                    elif n2 == edge[1] and n1.split("_")[0] == "tsnchange:"+entity_type:
                         county2 = n1
                 if county1 == county2:            #if the county versions are from the same county its true 
                     same_county_node_versions[tuple(edge)] = True
@@ -65,11 +69,15 @@ class QueryGeneratorFromRules:
     # Pick the corresponding predicate between the 2 county versions
     def filter_cnt_ver_predicates(self, edge, same_county_node_versions):
         predicates_to_be_removed=[]
+        if rule_type == "state":
+            entity_type = "State"
+        else:
+            entity_type = "County"
         if tuple(edge) in list(same_county_node_versions.keys()):
             if same_county_node_versions[tuple(edge)]:
                 predicates_to_be_removed=['sem:geospatialProperty']
             else:
-                predicates_to_be_removed=['tse:hasNextCountyVersion', 'tse:hasPreviousCountyVersion']
+                predicates_to_be_removed=['tse:hasNext'+entity_type+'Version', 'tse:hasPrevious'+entity_type+'Version']
 
         return predicates_to_be_removed
 
@@ -312,7 +320,7 @@ class QueryGeneratorFromRules:
 
             if not results:
                 self.queries_without_result.add(random_sparql_query)
-                output_file = open("generated_queries/queries_without_local_results.json", "a")
+                output_file = open("generated_queries/"+experiment_path+"_queries_without_local_results.json", "a")
                 sparql_query_graph.sparql_query = random_sparql_query
                 output_file.write(jsons.dumps(sparql_query_graph) + "\n")
                 output_file.flush()

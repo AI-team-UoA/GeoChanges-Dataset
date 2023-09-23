@@ -79,7 +79,7 @@ class SPARQLQueryGraph:
                 if node_pair_id not in done_pairs:
                     if self.node_types[node1] == self.node_types[node2]:
                         node_type = self.node_types[node1]
-                        if node_type in ['time:Interval', 'time:Instant', 'xsd:date', 'tsnchange:Change', 'WKT_Geo']:
+                        if node_type in ['time:Interval', 'time:Instant', 'xsd:date', 'tsnchange:Change','ChangeType', 'ChangeDate', 'WKT_Geo']:
                             continue
                         sparql_query += " FILTER(" + placeholders[node1] + " != " + placeholders[node2] + ") .\n"
                     done_pairs.add(node_pair_id)
@@ -135,7 +135,7 @@ class SPARQLQueryGraph:
 
         print("-----------Place holdes-----------")
         print(self.placeholders)
-        if self.node_types[self.select_node] == "geo:Geometry" and random.random() < 1: #probability to ask about area not geometry
+        if self.node_types[self.select_node] == "geo:Geometry" and random.random() < 0.65: #probability to ask about area not geometry
             # select area
             sparql_query = "SELECT DISTINCT (strdf:area(" + " " + self.placeholders["GeoValue_"+str(self.select_node).split("_")[1]] + ") as ?area) { " + "\n"
             self.placeholders["Area_0"]="?area"
@@ -189,13 +189,27 @@ class SPARQLQueryGraph:
 
         return sparql_query
 
+def find_string_without_prefix(sparql_words, prefix_val):
+    matching_prefixs = [word for word in sparql_words if prefix_val in word]
+    return matching_prefixs
+
+def replace_unmatched_prefixs(sparql, matching_prefixs, prefix_val, prefix_k):
+    uri_prefix_form = [word.strip("<>").replace(prefix_val,prefix_k+":") for word in matching_prefixs]
+    for i in range(len(matching_prefixs)):
+        sparql = sparql.replace(matching_prefixs[i], uri_prefix_form[i])
+    return sparql
+
 
 def add_prefixes(sparql_query, prefix_dict):
-    extra_prefix_list = {"strdf":"http://strdf.di.uoa.gr/ontology#", "time":"http://www.w3.org/2006/time#"}
+    extra_prefix_list = {"strdf":"http://strdf.di.uoa.gr/ontology#", "time":"http://www.w3.org/2006/time#"}  #'tser': 'http://time-space-event.com/resource/'
     prefix_dict.update(extra_prefix_list)
     sparql_prefix_list = ""
+    sparql_words = sparql_query.split()
     # sparql_prefix_list = "PREFIX strdf: <http://strdf.di.uoa.gr/ontology#>\n"+ "PREFIX time: <http://www.w3.org/2006/time#>\n"       #add this prefix as it should be
     for prefix_key, prefix_value in prefix_dict.items():
+        if prefix_value in sparql_query:
+            unmatched_prefixs = find_string_without_prefix(sparql_words, prefix_value)
+            sparql_query = replace_unmatched_prefixs(sparql_query, unmatched_prefixs, prefix_value, prefix_key)
         if prefix_key + ":" in sparql_query:
             sparql_prefix_list += "PREFIX " + prefix_key + ": <" + str(prefix_value) + ">\n"
 

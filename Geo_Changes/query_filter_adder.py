@@ -35,19 +35,19 @@ def add_interval_values(query: SPARQLQueryGraph, new_edges, interval_index, inte
     if random_par <.5:
         interval_start = 'IntervalStart_' + str(interval_index)
         interval_value = 'IntervalStartValue_' + str(interval_index)
-        new_edges.add((interval, '<http://www.w3.org/2006/time#hasBeginning>', interval_start))
-        new_edges.add((interval_start, '<http://www.w3.org/2006/time#inXSDDate>', interval_value))
+        new_edges.add((interval, 'time:hasBeginning', interval_start))
+        new_edges.add((interval_start, 'time:inXSDDate', interval_value))
         query.other_nodes.append(interval_start)
-        query.node_types[interval_start] = '<http://www.w3.org/2006/time#Instant>'
+        query.node_types[interval_start] = 'time:Instant'
         query.other_nodes.append(interval_value)
         query.node_types[interval_value] = 'xsd:date'
     else:
         interval_end = 'IntervalEnd_' + str(interval_index)
         interval_value = 'IntervalEndValue_' + str(interval_index)
-        new_edges.add((interval, '<http://www.w3.org/2006/time#hasEnd>', interval_end))
-        new_edges.add((interval_end, '<http://www.w3.org/2006/time#inXSDDate>', interval_value))
+        new_edges.add((interval, 'time:hasEnd', interval_end))
+        new_edges.add((interval_end, 'time:inXSDDate', interval_value))
         query.other_nodes.append(interval_end)
-        query.node_types[interval_end] = '<http://www.w3.org/2006/time#Instant>'
+        query.node_types[interval_end] = 'time:Instant'
         query.other_nodes.append(interval_value)
         query.node_types[interval_value] = 'xsd:date'
 
@@ -129,7 +129,7 @@ def add_temporal_filters(query: SPARQLQueryGraph):
             # if node == query.select_node:
             #     return query
                 #continue # do not include any information about dates
-            if random.random() < 1: #probability to add temporal filter 0.5
+            if random.random() < 1: #probability to add temporal filter
                 # get interval values
                 if node_type == "ChangeDate" or node_type == "xsd:date":
                     interval1_value = node

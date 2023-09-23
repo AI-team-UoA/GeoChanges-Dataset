@@ -1,4 +1,4 @@
-rule_type = "county"
+rule_type = "state"
 
 allowed_select_node_types = [ "tsnchange:County", "geo:Geometry", "sem:Event", "tsnchange:Change", "ChangeDate", "time:Interval", "tsnchange:State"]  # control select node ChangeType
 
@@ -8,15 +8,14 @@ not_existing_node_types=['time:Interval' ,'time:Instant' ,'xsd:date', 'WKT_Geo',
 
 types_for_temp_filters = ['time:Interval', "ChangeDate", 'xsd:date']
 
-select_exception_rule_ids=["Q3", "Q7", "Q12", "Q13", "Q26", "Q28", "Q45", "Q46"]  #, "Q28", "Q37"    #select node is picked automatically
+select_exception_rule_ids=["SQ3", "SQ7", "SQ12", "SQ13", "SQ26", "SQ28"]  #, "Q28", "Q37"    #select node is picked automatically
 
 #Geometry relations
 spatial_filter_relations = ['strdf:right', 'strdf:below', 'strdf:above', 'strdf:left']
 #'geo:sfWithin', 'geo:sfContains', 'geo:sfOverlaps', 'geo:sfIntersects',
 #'geo:sfTouches', 'geo:sfCoverdBy', 'geo:sfEquals', 'geo:sfCovers'
 
-spatial_materialised_properties = ['geo:sfTouches', "geo:sfIntersects", "geo:sfContains",
-"geo:sfCovers",
+spatial_materialised_properties = ['geo:sfTouches', "geo:sfIntersects", "geo:sfCoverdBy",
 "geo:sfOverlaps",
 "geo:sfWithin"]   
                                    
@@ -25,7 +24,7 @@ spatial_materialised_properties = ['geo:sfTouches', "geo:sfIntersects", "geo:sfC
 change_subclasses = ['tsnchange:Appearance', 'tsnchange:NameChange', 'tsnchange:Expansion',
                      'tsnchange:Contraction']  # Skip 'tsnchange:Fusion', 'tsnchange:Merge', 'tsnchange:Integration', 'tsnchange:Extraction'
 
-rules_with_start_end=["Q1"]
+rules_with_start_end=["SQ1"]
 #Nodes with properties
 node_properties={
     "tsnchange:Change":[["tsnchange:date", "ChangeDate_"],
@@ -35,10 +34,10 @@ node_properties={
     #                     ["http://www.w3.org/2006/time#hasBeginning", "ChangeType_"]]
 }
 
-online_exceptions = ["Q22", "Q28"]
+online_exceptions = ["SQ22", "SQ28"]
 
-experiment_path = "200_cnt_new"
+experiment_path = "1500_new_stt"
 
-question_template_path = "resources/Checked_Question_Templates.csv"
-invalid_rules_path = "resources/invalid_rules.json"
-rules_path = "resources/rules3.tsv"
+question_template_path = "./resources/state_question_templates.csv"
+invalid_rules_path = "./resources/state_invalid_rules.json"
+rules_path = "resources/state_rules.tsv"
