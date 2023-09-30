@@ -18,10 +18,10 @@ synonyms = {
 "geo:sfTouches": [{"original": "border", "gerund":"bordering", "past":"bordered" }, {"original": "neighbor", "gerund":"neighboring", "past":"neighbored" }],
 "geo:sfOverlaps": [{"original": "overlap", "gerund":"overlapping", "past":"overlapped" }],
 "geo:sfWithin": [{"original": "is within", "gerund":"being within", "past":"was within" }, {"original": "is inside", "gerund":"being inside", "past":"was inside" }],
-'strdf:right': ["east of"], 
-'strdf:below': ["south of"], 
-'strdf:above': ["north of"], 
-'strdf:left': ["west of"],
+'strdf:right': [{"original":"east of"}], 
+'strdf:below': [{"original":"south of"}], 
+'strdf:above': [{"original":"north of"}], 
+'strdf:left': [{"original":"west of"}],
 "http://purl.org/net/tsnchange#Contraction": [{"original":"contract", "gerund":"contracting", "noun":"contraction", "past":"contracted"}],
 "http://purl.org/net/tsnchange#NameChange": [{"original":"change in name", "gerund":"renaming", "noun":"renaming", "past":"was renamed"}],
 "http://purl.org/net/tsnchange#Appearance": [{"original":"change in appearance", "gerund":"appearance changing", "noun":"changing in appearance", "past":"changed in appearance"}],
@@ -32,15 +32,16 @@ synonyms = {
 
 
 Dict_query_type_mapping={
-    "tsnchange:County":"COUNTY",
-    "time:Interval":"DATE",
-    "geo:Geometry":"GEOMETRY",
-    "tsnchange:Change":"CHANGE",
-    "sem:Event":"EVENT",
-    'tsnchange:State':"STATE",
-    "ChangeType":"CHANGE",
-    "ChangeDate":"DATE",
-    "area":"AREA"
+    "tsnchange:County": "COUNTY",
+    "time:Interval": "DATE",
+    "geo:Geometry": "GEOMETRY",
+    "tsnchange:Change": "CHANGE",
+    "sem:Event": "EVENT",
+    'tsnchange:State': "STATE",
+    "ChangeType": "CHANGE",
+    "ChangeDate": "DATE",
+    "area": "AREA",
+    "xsd:date": "DATE"
 }
 
 Dict_instances_type_mapping={
@@ -72,14 +73,14 @@ class question_template_picker:
         #                                                 "CHANGE_TYPE", "COUNTY_NAME_2","STATE_NAME","TEMP_RELATION", "PREDICATE"]).agg({'Questions Template': list}).reset_index()
 
     def predicate_filtering(self, questions_temp, row):
-        if row["Q_id"] in ["Q7","Q37"]: 
+        if row["Q_id"] in ["Q7", "Q37", "Q28", "SQ7", "SQ37", "SQ28"]: 
             if "tsnchange:countyVersionAfter" in row["Predicates"]:
                 questions_temp=questions_temp[questions_temp["PREDICATE"]=="AFTER"]
             elif "tsnchange:countyVersionBefore" in row["Predicates"]:
                 questions_temp=questions_temp[questions_temp["PREDICATE"]=="BEFORE"]
             # else:
             #     questions_temp=questions_temp[questions_temp["PREDICATE"]=="BOTH"]
-        elif row["Q_id"] in ["Q1"]: 
+        elif row["Q_id"] in ["Q1", "SQ1"]: 
             if "time:hasBeginning" in row["Predicates"]:
                 questions_temp=questions_temp[questions_temp["PREDICATE"]=="start_date"]
             elif "time:hasEnd" in row["Predicates"]:
@@ -92,6 +93,7 @@ class question_template_picker:
         print(f_list)
         used_the_date = False
         used_geometry = False
+        # if 
         for f in f_list:
             if f["f_type"] == "temporal":
                 if used_the_date:
@@ -112,6 +114,7 @@ class question_template_picker:
             elif f["f_type"] =="spatial":
                 used_geometry = True
                 questions_temp = questions_temp[questions_temp["GEO_RELATION"]]
+                row["Uris_match"]["GEO_RELATION"] = f["operator"]
 
         if used_the_date == False:
             questions_temp = questions_temp[questions_temp["DATE_NAME"]==False]
@@ -194,7 +197,7 @@ class question_template_picker:
         return querie_df
 
 
-def extract_word_types(sentence, keyword):
+def extract_word_forms(sentence, keyword):
     # Split the sentence into individual words
     words = sentence.split()
 
@@ -206,7 +209,7 @@ def extract_word_types(sentence, keyword):
             return keyword
 
     # If the word is not found, return None or an appropriate value
-    return None
+    return ""
 
 
 def camel_to_words(camel_string):
@@ -233,8 +236,9 @@ class question_production:
         if not row["Questions_templates"]:
             return " "
         question=random.choice(row["Questions_templates"])
+        print(row["Uris_match"].items())
         for k,v in row["Uris_match"].items():
-            type_with_version = extract_word_types(question, k)
+            type_with_version = extract_word_forms(question, k)
             temp_v = v
             type_with_version = type_with_version.replace("?","")
             type_with_version = type_with_version.replace(",","")
