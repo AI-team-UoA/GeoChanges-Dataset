@@ -1,6 +1,6 @@
 rule_type = "county"
 
-allowed_select_node_types = [ "tsnchange:County", "geo:Geometry", "sem:Event", "tsnchange:Change", "ChangeDate", "time:Interval", "tsnchange:State"]  # control select node ChangeType
+allowed_select_node_types = [ "hgc:County", "geo:Geometry", "sem:Event", "tsnchange:Change", "ChangeDate", "time:Interval", "hgc:State"]  # control select node ChangeType
 
 not_allowed_uri_nodes=["geo:Geometry", "sem:Event","tsnchange:Change"]  #"time:Interval", "ChangeDate"
 
@@ -37,7 +37,7 @@ node_properties={
 
 online_exceptions = ["Q22", "Q34"]  # "Q28" "Q22"
 
-experiment_path = "test_Q1_cnt_"
+experiment_path = "test_10_cnt_"
 
 question_template_path = "resources/Checked_Question_Templates.csv"
 invalid_rules_path = "resources/invalid_rules.json"

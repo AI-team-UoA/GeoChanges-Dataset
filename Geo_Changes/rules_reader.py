@@ -7,9 +7,9 @@ from configuration import question_template_path, rules_path
 
 # target_types_dict = {"DATE": TIME.Interval, "COUNTY": TSN.County, "GEOMETRY": GEO.Geometry, "CHANGE": TSN.Change,
 #                     "EVENT": SEM.Event, "STATE": TSN.State}
-target_types_dict = {"DATE": "time:Interval", "COUNTY": "tsnchange:County", "GEOMETRY": "Geo:Geometry",
+target_types_dict = {"DATE": "time:Interval", "COUNTY": "hgc:County", "GEOMETRY": "Geo:Geometry",
                      "CHANGE": "tsnchange:Change",
-                     "EVENT": "sem:Event", "STATE": "tsnchange:State"}
+                     "EVENT": "sem:Event", "STATE": "hgc:State"}
 
 # Loads the rules from the given file
 # Returns a dictionary with Rule items

@@ -5,7 +5,7 @@ import random
 import networkx as nx
 from rdflib import Graph, OWL, RDF, BNode, TIME, Namespace
 
-from namespaces import SEM, TSN, TSE, GEO, TSNCHANGE
+from namespaces import SEM, TSN, TSE, GEO, TSNCHANGE, HGC
 
 
 class LabelGenerator:
@@ -40,6 +40,7 @@ def get_default_graph():
     g.bind("geo", GEO)
     g.bind("time", TIME)
     g.bind("rdf", RDF)
+    g.bind("hgc", HGC)
 
     prefixes = {}
     for prefix, namespace in g.namespace_manager.store.namespaces():
@@ -87,13 +88,14 @@ def get_ontology(directed=True):
         range_uri = row.range
         if type(domain_uri) != BNode and type(range_uri) != BNode:
             src = lbl_gen.get_label(g, domain_uri, False)
+            print(src)
             dst = lbl_gen.get_label(g, range_uri, False)
             uris = []
             if ((src, dst) in G.edges):
                 uris = G.get_edge_data(src, dst)["uris"]
             # print("LAB:", row.p, lbl_gen.get_label(g, row.p, True))
             uris.append(lbl_gen.get_label(g, row.p, True))
-            if ((src == "tsnchange:CountyVersion_0" and dst == "tsnchange:StateVersion_0") or (dst == "tsnchange:CountyVersion_0" and src == "tsnchange:StateVersion_0")) and "sem:geospatialProperty" in uris:
+            if ((src == "hgc:CountyVersion_0" and dst == "hgc:StateVersion_0") or (dst == "hgc:CountyVersion_0" and src == "hgc:StateVersion_0")) and "sem:geospatialProperty" in uris:
                 uris.remove("sem:geospatialProperty")
             print(src, " -- ",dst," -- ", uris)
             G.add_edge(src, dst, uris=uris)

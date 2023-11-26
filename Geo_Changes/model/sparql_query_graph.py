@@ -68,7 +68,7 @@ class SPARQLQueryGraph:
         
         if self.random_county:
             for node in self.uri_nodes:
-                if self.node_types[node] == "tsnchange:County":
+                if self.node_types[node] == "hgc:County":
                     placeholders[node] = "<"+self.random_county["county"]+">"
                     self.uri_node_uris[node] = self.random_county["county"]
                     self.uri_nodes.remove(node)
@@ -223,7 +223,7 @@ def replace_unmatched_prefixs(sparql, matching_prefixs, prefix_val, prefix_k):
 
 
 def add_prefixes(sparql_query, prefix_dict):
-    extra_prefix_list = {"strdf":"http://strdf.di.uoa.gr/ontology#", "time":"http://www.w3.org/2006/time#"}  #'tser': 'http://time-space-event.com/resource/'
+    extra_prefix_list = {"strdf":"http://strdf.di.uoa.gr/ontology#", "time":"http://www.w3.org/2006/time#",  "hgc":"http://www.semanticweb.org/savtr/ontologies/2022/1/HistoricGeoChanges-23/"}  #'tser': 'http://time-space-event.com/resource/'
     prefix_dict.update(extra_prefix_list)
     sparql_prefix_list = ""
     sparql_words = sparql_query.split()

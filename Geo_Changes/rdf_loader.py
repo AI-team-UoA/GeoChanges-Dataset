@@ -12,7 +12,7 @@ unused_rdf_geo_files = ["us_counties_version_with_geom.nt"]
 unused_rdf_reduced_files = ["us_counties_version_with_geom.nt"]  # ,"materialized_triples_updated2.nt
 # "before_after_county_extended.nt" ]
 
-rdf_folder_name = "C:/Users/mikem/Desktop/Work/Dharmen_Eleni_thesis/My_GeoChangesQA/GeoChangesQA/resources/rdf_dump"  # /storage/home/gottschalk/geochanges/rdf_dumps/
+rdf_folder_name = "C:/Users/mikem/Desktop/Work/Dharmen_Eleni_thesis/GeoChanges-Dataset/GeoChanges-Dataset/Geo_Changes/resources/rdf_dump"  # /storage/home/gottschalk/geochanges/rdf_dumps/
 
 
 class SimpleDate():

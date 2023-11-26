@@ -54,7 +54,7 @@ done = False
 
 # Start counting time
 start = time.time()
-number_of_queries_per_rule = int(number_of_queries_to_generate/(len(query_generator.rules.values())-len(online_exceptions)))
+number_of_queries_per_rule = 5 #int(number_of_queries_to_generate/(len(query_generator.rules.values())-len(online_exceptions)))
 for rule in query_generator.rules.values():
     # if online_run:
     #     if rule.id not in online_exceptions:   # ['Q1', 'Q3', 'Q4', 'Q7', 'Q12', 'Q13', 'Q18', 'Q22', 'Q23', 'Q26', 'Q28', 'Q40', 'Q42', 'Q43', 'Q45', 'Q46']

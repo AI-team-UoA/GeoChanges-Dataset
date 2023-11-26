@@ -47,15 +47,15 @@ class QueryGeneratorFromRules:
         county2=None
 
         for edge in rule.edges:
-            if edge[0].split("_")[0] == "tsnchange:"+entity_type+"Version" and edge[1].split("_")[0] == "tsnchange:"+entity_type+"Version":
+            if edge[0].split("_")[0] == "hgc:"+entity_type+"Version" and edge[1].split("_")[0] == "hgc:"+entity_type+"Version":
                 for n1,n2 in rule.edges:
-                    if n1 == edge[0] and n2.split("_")[0] == "tsnchange:"+entity_type:
+                    if n1 == edge[0] and n2.split("_")[0] == "hgc:"+entity_type:
                         county1 = n2
-                    elif n2 == edge[0] and n1.split("_")[0] == "tsnchange:"+entity_type:
+                    elif n2 == edge[0] and n1.split("_")[0] == "hgc:"+entity_type:
                         county2 = n1
-                    if n1 == edge[1] and n2.split("_")[0] == "tsnchange:"+entity_type:
+                    if n1 == edge[1] and n2.split("_")[0] == "hgc:"+entity_type:
                         county2 = n2
-                    elif n2 == edge[1] and n1.split("_")[0] == "tsnchange:"+entity_type:
+                    elif n2 == edge[1] and n1.split("_")[0] == "hgc:"+entity_type:
                         county2 = n1
                 if county1 == county2:            #if the county versions are from the same county its true 
                     same_county_node_versions[tuple(edge)] = True
@@ -247,9 +247,9 @@ class QueryGeneratorFromRules:
             if rule.id in rules_with_start_end:
                 a_select_nodes_t = a_select_nodes_t + ['xsd:date']
             elif rule.id in ["Q42"]:
-                a_select_nodes_t.remove("tsnchange:State")
+                a_select_nodes_t.remove("hgc:State")
             elif rule.id in ["Q43"]:
-                a_select_nodes_t.remove("tsnchange:County")
+                a_select_nodes_t.remove("hgc:County")
                 
             created_query.select_node = random.choice(
             [node for node in list(leaf_nodes) + created_query.other_nodes if created_query.node_types[node] in a_select_nodes_t])
@@ -322,9 +322,9 @@ class QueryGeneratorFromRules:
                 r_date = random_online_date(min(counties.iloc[0]["date"], counties.iloc[1]["date"]), r_operator)
             sparql_query_graph = add_temporal_filters(sparql_query_graph, r_date, r_operator) 
             types_names = {
-                 "tsnchange:County":"county",
+                 "hgc:County":"county",
                  "ChangeType":"ch_type",
-                 "tsnchange:State":"state",
+                 "hgc:State":"state",
             }
 
             for uri_node in sparql_query_graph.uri_nodes:
