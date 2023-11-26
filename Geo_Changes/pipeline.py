@@ -9,8 +9,9 @@ from model.sparql_query_graph import SPARQLQueryGraph
 from configuration import invalid_rules_path, online_exceptions, experiment_path 
 
 
-number_of_queries_to_generate = 200
+number_of_queries_to_generate = 2000
 
+online_run = False
 
 def create_query(query_rule: Rule):
     created_query = query_generator.generate_query(query_rule.id, print_info=True)
@@ -25,7 +26,7 @@ def create_query(query_rule: Rule):
 
 
 _, prefix_dict = ontology_loader.get_default_graph()
-query_generator = QueryGeneratorFromRules(online=False)
+query_generator = QueryGeneratorFromRules(online = online_run)
 query_generator.load_forbidden_queries(path = invalid_rules_path)
 query_generator.create_rule_graphs()
 
@@ -53,17 +54,27 @@ done = False
 
 # Start counting time
 start = time.time()
-number_of_queries_per_rule =  int(number_of_queries_to_generate/(len(query_generator.rules.values())-len(online_exceptions)))
+number_of_queries_per_rule = int(number_of_queries_to_generate/(len(query_generator.rules.values())-len(online_exceptions)))
 for rule in query_generator.rules.values():
-    if rule.id in online_exceptions:# ['Q1', 'Q3', 'Q4', 'Q7', 'Q12', 'Q13', 'Q18', 'Q22', 'Q23', 'Q26', 'Q28', 'Q40', 'Q42', 'Q43', 'Q45', 'Q46']
-            continue
-    while rules_count[rule.id]<number_of_queries_per_rule:
+    # if online_run:
+    #     if rule.id not in online_exceptions:   # ['Q1', 'Q3', 'Q4', 'Q7', 'Q12', 'Q13', 'Q18', 'Q22', 'Q23', 'Q26', 'Q28', 'Q40', 'Q42', 'Q43', 'Q45', 'Q46']
+    #             continue
+    # else:
+    #     if rule.id in online_exceptions:   # ['Q1', 'Q3', 'Q4', 'Q7', 'Q12', 'Q13', 'Q18', 'Q22', 'Q23', 'Q26', 'Q28', 'Q40', 'Q42', 'Q43', 'Q45', 'Q46']
+    #             continue
+
+    # if rule.id not in ["Q13"]:   # ['Q1', 'Q3', 'Q4', 'Q7', 'Q12', 'Q13', 'Q18', 'Q22', 'Q23', 'Q26', 'Q28', 'Q40', 'Q42', 'Q43', 'Q45', 'Q46']
+    #             continue
+    while rules_count[rule.id] < number_of_queries_per_rule:
         
         print("========================================")
         print("Rule", rule.id)
         query = create_query(rule)
         if query:
-            r = run_query_online(query, 1)  # runs the created query against the online endpoint to get online results
+            if not (online_run and query.results):
+                r = run_query_online(query, 1)  # runs the created query against the online endpoint to get online results
+            else:
+                 print(query.sparql_query)
             if not query.results:
                 online_rules_count_without_results[rule.id]+=1
                 output_file = f_without_results

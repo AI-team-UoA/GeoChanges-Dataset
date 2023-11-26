@@ -1,12 +1,14 @@
 import random
-
+import sys
+sys.path.append("..")
 import networkx as nx
 
 from model.rule import Rule
 from ontology_loader import get_random_instance
 
-from configuration import not_existing_node_types, not_allowed_uri_nodes, types_for_temp_filters
+from configuration import not_existing_node_types, not_allowed_uri_nodes, types_for_temp_filters, spatial_filter_relations, county_dates_changes, rule_type
 import pandas as pd
+from simple_endpoint_access import run_online
 
 class SPARQLQueryGraph:
 
@@ -26,7 +28,7 @@ class SPARQLQueryGraph:
         self.filters = set()
         self.bindings = set()
         self.placeholders = dict()
-        self.results = 0
+        self.results = []
         self.rule_graph = rule_graph
         if rule_graph:
             self.rule_graph_edges = rule_graph.edges(data=True)
@@ -36,6 +38,26 @@ class SPARQLQueryGraph:
         self.county_relation = None
         self.random_county = None
     
+
+    def create_ask_online_query(self, prefix_dict):
+        geo_rel_lst = random.sample(spatial_filter_relations, len(spatial_filter_relations))
+        counties_data = pd.read_csv(county_dates_changes)
+        weights = counties_data['ch_type'].apply(lambda x: 0.3 if x == 'http://purl.org/net/tsnchange#Change' else 1.0)
+        rand_counties = counties_data.sample(2, replace=False, weights=weights)
+        c1, c2 = rand_counties.iloc[0], rand_counties.iloc[1]
+
+        for g_rel in geo_rel_lst:
+            if rule_type == "county":
+                geo_query_search = "ASK  WHERE { <"+c1["county"]+"> tsn:hasCountyVersion ?cv1. ?cv1 geo:hasGeometry ?g1 . ?g1 geo:asWKT ?wkt1 . <"+c2["county"]+"> tsn:hasCountyVersion ?cv2. ?cv2 geo:hasGeometry ?g2 . ?g2 geo:asWKT ?wkt2 . FILTER("+g_rel+"(?wkt1, ?wkt2 )) .} "
+            elif rule_type == "state":
+                geo_query_search = "ASK  WHERE { <"+c1["state"]+"> tsn:hasStateVersion ?cv1. ?cv1 geo:hasGeometry ?g1 . ?g1 geo:asWKT ?wkt1 . <"+c2["state"]+"> tsn:hasStateVersion ?cv2. ?cv2 geo:hasGeometry ?g2 . ?g2 geo:asWKT ?wkt2 . FILTER("+g_rel+"(?wkt1, ?wkt2 )) .} "
+            
+            sparql_query = add_prefixes(geo_query_search, prefix_dict)
+            result = run_online(sparql_query)
+            if result:
+                break
+
+        return rand_counties, g_rel
 
     def create_random_sparql_query(self, prefix_dict, online):
         # create placeholders
@@ -135,7 +157,7 @@ class SPARQLQueryGraph:
 
         print("-----------Place holdes-----------")
         print(self.placeholders)
-        if self.node_types[self.select_node] == "geo:Geometry" and random.random() < 0.65: #probability to ask about area not geometry
+        if self.node_types[self.select_node] == "geo:Geometry" and random.random() < 0.45: #probability to ask about area not geometry
             # select area
             sparql_query = "SELECT DISTINCT (strdf:area(" + " " + self.placeholders["GeoValue_"+str(self.select_node).split("_")[1]] + ") as ?area) { " + "\n"
             self.placeholders["Area_0"]="?area"

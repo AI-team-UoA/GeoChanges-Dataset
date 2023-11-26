@@ -24,7 +24,7 @@ GEOSPATIAL_PROPERTY = "sem:geospatialProperty"
 TEMPORAL_PROPERTY = "sem:temporalProperty"
 
 MIN_YEAR = "1629-01-01"
-MAX_YEAR = "2000-01-01"
+MAX_YEAR = "2001-01-01"
 
 
 
@@ -80,9 +80,9 @@ def str_time_prop(start, end, time_format, prop):
     return time.strftime(time_format, time.localtime(ptime))
 
 
-def random_date():
-    start_date = dt.strptime(MIN_YEAR, '%Y-%m-%d')
-    end_date   = dt.strptime(MAX_YEAR, '%Y-%m-%d')
+def random_date(start_d = None, end_d = None):
+    start_date = dt.strptime(MIN_YEAR, '%Y-%m-%d') if start_d == None else start_d
+    end_date   = dt.strptime(MAX_YEAR, '%Y-%m-%d') if end_d == None else end_d
     num_days   = (end_date - start_date).days
     rand_days   = random.randint(1, num_days)
     random_date = start_date + datetime.timedelta(days=rand_days)
@@ -104,7 +104,7 @@ def random_online_date(random_d, rand_operator):
     return str(random_date.date())
 
 
-def add_temporal_filters(query: SPARQLQueryGraph):
+def add_temporal_filters(query: SPARQLQueryGraph, rand_date=None, rand_op=None):
     # for each interval: in 50% of the cases, add random temporal condition (e.g., start date before 1950)
     new_edges = set()
     
@@ -119,7 +119,14 @@ def add_temporal_filters(query: SPARQLQueryGraph):
     else:
         random_d = random_date()
         # random_change_d = random_date()
+    
+    if rand_date!=None:
+        random_d = rand_date
+    if rand_op!=None:
+        rand_operator = rand_op
+
     print("random date:", random_d)
+
     interval_index=0
     #continue # do not include any information about dates
     if query.node_types[query.select_node]  in types_for_temp_filters:
@@ -145,9 +152,13 @@ def add_temporal_filters(query: SPARQLQueryGraph):
 
     return query
 
-def add_spatial_filters(query: SPARQLQueryGraph):
-    relation_operators= spatial_filter_relations    #" = "
-    rand_operator=random.choice(relation_operators)
+def add_spatial_filters(query: SPARQLQueryGraph, g_rel = None):
+    if g_rel == None:
+        relation_operators = spatial_filter_relations    #" = "
+        rand_operator = random.choice(relation_operators)
+    else:
+        rand_operator = g_rel
+
     geo_nodes_list=[]
     for node, node_type in copy.deepcopy(query.node_types).items():
         if node_type == 'WKT_Geo':  # skip the case where the select node is time:Interval. We ask about this node we do not want to give extra information

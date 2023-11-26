@@ -13,9 +13,9 @@ import ontology_loader
 import rules_reader
 from kg_api_access import query
 from model.sparql_query_graph import SPARQLQueryGraph
-from query_filter_adder import add_geo_relation, add_temporal_filters, add_spatial_filters, node_properties
-from configuration import allowed_select_node_types, not_allowed_uri_nodes, select_exception_rule_ids, online_exceptions, rule_type, experiment_path
-from endpoint_access import run_online
+from query_filter_adder import add_geo_relation, add_temporal_filters, add_spatial_filters, random_online_date, node_properties
+from configuration import allowed_select_node_types, not_allowed_uri_nodes, select_exception_rule_ids, online_exceptions, rule_type, experiment_path, counties_dates_path, types_for_temp_filters, rules_with_start_end
+from simple_endpoint_access import run_online
 class IndexedClass:
 
 
@@ -27,7 +27,7 @@ class IndexedClass:
 class QueryGeneratorFromRules:
 
 
-    def __init__(self, online: bool, class_instances=None):
+    def __init__(self, online=False, class_instances=None):
         self.G = None
         self.rules = None
         self.forbidden_queries = []
@@ -97,7 +97,7 @@ class QueryGeneratorFromRules:
             #     continue
             rule.graph = nx.DiGraph(id=rule.id)       #Need to be DirectionalyGraph
             same_county_node_versions=self.versions_of_same_county(rule)
-            print(same_county_node_versions)
+            print(rule.id)
 
             for edge in rule.edges:                 ####### prints na doyme ti ginetai edv
                 found_edge = False
@@ -174,7 +174,8 @@ class QueryGeneratorFromRules:
     def generate_query(self, rule_graph_id, print_info: bool = False):
         sparql_query_graph = self.create_sparql_query_graph(rule_graph_id, print_info)
         sparql_query_graph = self.add_geometry_values(sparql_query_graph)
-        sparql_query_graph = self.add_filters(sparql_query_graph)
+        if not self.online:
+            sparql_query_graph = self.add_filters(sparql_query_graph)
         sparql_query_graph = self.replace_uri_nodes(sparql_query_graph)
 
         return sparql_query_graph
@@ -219,7 +220,7 @@ class QueryGeneratorFromRules:
                 leaf_nodes.remove(node)
 
         if created_query.rule.id in online_exceptions:
-            county_names_df = pd.read_csv("resources/county_dates_changedates.csv")
+            county_names_df = pd.read_csv(counties_dates_path)
             # get a random row using sample()
             random_row = county_names_df.sample()
 
@@ -239,10 +240,20 @@ class QueryGeneratorFromRules:
                     created_query.select_node = n
                 if t=="sem:Event":
                     created_query.select_node = n
+                    break
         else:
-            created_query.select_node = random.choice(
-            [node for node in list(leaf_nodes) + created_query.other_nodes if created_query.node_types[node] in allowed_select_node_types])
+            a_select_nodes_t = allowed_select_node_types.copy()
 
+            if rule.id in rules_with_start_end:
+                a_select_nodes_t = a_select_nodes_t + ['xsd:date']
+            elif rule.id in ["Q42"]:
+                a_select_nodes_t.remove("tsnchange:State")
+            elif rule.id in ["Q43"]:
+                a_select_nodes_t.remove("tsnchange:County")
+                
+            created_query.select_node = random.choice(
+            [node for node in list(leaf_nodes) + created_query.other_nodes if created_query.node_types[node] in a_select_nodes_t])
+        created_query.select_node = created_query.select_node.split("_")[0]+"_0"
         # remaining leaf nodes are URI nodes
         created_query.uri_nodes = [node for node in leaf_nodes if node != created_query.select_node and created_query.node_types[node] not in not_allowed_uri_nodes]  #created_query.node_types[node] not in not_allowed_uri_nodes
 
@@ -298,6 +309,43 @@ class QueryGeneratorFromRules:
             online = True
         else:
             online = False
+        if online:
+
+            counties, g_rel = sparql_query_graph.create_ask_online_query(self.prefix_dict)
+            sparql_query_graph = add_spatial_filters(sparql_query_graph, g_rel)
+
+
+            r_operator = random.choice([" < ", " > "])
+            if r_operator == " < ":
+                r_date = random_online_date(max(counties.iloc[0]["date"], counties.iloc[1]["date"]), r_operator)
+            else:
+                r_date = random_online_date(min(counties.iloc[0]["date"], counties.iloc[1]["date"]), r_operator)
+            sparql_query_graph = add_temporal_filters(sparql_query_graph, r_date, r_operator) 
+            types_names = {
+                 "tsnchange:County":"county",
+                 "ChangeType":"ch_type",
+                 "tsnchange:State":"state",
+            }
+
+            for uri_node in sparql_query_graph.uri_nodes:
+                n_type, n_num = uri_node.split("_")
+                if n_type in types_names.keys():
+                    sparql_query_graph.uri_node_uris[uri_node] = counties.iloc[int(n_num)][types_names[n_type]]
+                elif n_type in types_for_temp_filters:
+                    sparql_query_graph.uri_node_uris[uri_node] = r_date
+            
+            s_type, s_num = sparql_query_graph.select_node.split("_")
+            if s_type in types_names.keys():
+                sparql_query_graph.results.append({"answer":counties.iloc[int(s_num)][types_names[s_type]]})
+            elif s_type in types_for_temp_filters:
+                sparql_query_graph.results.append({"answer":counties.iloc[int(s_num)]["date"]})
+            elif s_type == "geo:Geometry":
+                sparql_query_graph.results.append({"answer":counties.iloc[int(s_num)]["geo"]})
+            elif s_type == "sem:Event":
+                sparql_query_graph.results.append({"answer":counties.iloc[int(s_num)]["event"]})
+
+            return sparql_query_graph
+        
         random_sparql_query, placeholders = sparql_query_graph.create_random_sparql_query(self.prefix_dict, online)
         #print the query that runs locally
         print("##############RANDOM SPARQL QUERY###################")
@@ -305,39 +353,38 @@ class QueryGeneratorFromRules:
         jsonStr = jsons.dumps(sparql_query_graph)
         print(jsonStr)
         
-        if not self.online:
-            if random_sparql_query in self.queries_without_result:
-                return None
-            #Query with at least one result
-            print("Run query locally..")
-            # time.sleep(5)
-            if online:
-                #print(random_sparql_query)
-                results = run_online(random_sparql_query, 1)
-            else:
-                results = query(random_sparql_query)["res"]    #RUN LOCAL KG
-            print(results)
 
-            if not results:
-                self.queries_without_result.add(random_sparql_query)
-                output_file = open("generated_queries/"+experiment_path+"_queries_without_local_results.json", "a")
-                sparql_query_graph.sparql_query = random_sparql_query
-                output_file.write(jsons.dumps(sparql_query_graph) + "\n")
-                output_file.flush()
-                output_file.close()
-                return None
-            print("RESULTS:")
-
-            if "tsnchange:Change" in sparql_query_graph.node_types.values() and random.random() > 0.2:
-                results = QueryGeneratorFromRules.choose_random_change_type(results)
-                
-            uris_combination = random.choice(results)
-            print(uris_combination)
-            print(sparql_query_graph.uri_nodes)
-            print(placeholders)
-            for uri_node in sparql_query_graph.uri_nodes:
-                sparql_query_graph.uri_node_uris[uri_node] = uris_combination[placeholders[uri_node]]
+        if random_sparql_query in self.queries_without_result:
+            return None
+        #Query with at least one result
+        print("Run query locally..")
+        # time.sleep(5)
+        if online:
+            #print(random_sparql_query)
+            results = run_online(random_sparql_query, 1)
         else:
-            query.sparql_query = sparql_query_graph.create_sparql_query(self.prefix_dict, self.online)
+            results = query(random_sparql_query)["res"]    #RUN LOCAL KG
+        print(results)
+
+        if not results:
+            self.queries_without_result.add(random_sparql_query)
+            output_file = open("generated_queries/"+experiment_path+"_queries_without_local_results.json", "a")
+            sparql_query_graph.sparql_query = random_sparql_query
+            output_file.write(jsons.dumps(sparql_query_graph) + "\n")
+            output_file.flush()
+            output_file.close()
+            return None
+        print("RESULTS:")
+
+        if "tsnchange:Change" in sparql_query_graph.node_types.values() and random.random() > 0.2:
+            results = QueryGeneratorFromRules.choose_random_change_type(results)
+            
+        uris_combination = random.choice(results)
+        print(uris_combination)
+        print(sparql_query_graph.uri_nodes)
+        print(placeholders)
+        for uri_node in sparql_query_graph.uri_nodes:
+            sparql_query_graph.uri_node_uris[uri_node] = uris_combination[placeholders[uri_node]]
+
 
         return sparql_query_graph

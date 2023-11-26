@@ -8,7 +8,7 @@ not_existing_node_types=['time:Interval' ,'time:Instant' ,'xsd:date', 'WKT_Geo',
 
 types_for_temp_filters = ['time:Interval', "ChangeDate", 'xsd:date']
 
-select_exception_rule_ids=["Q3", "Q7", "Q12", "Q13", "Q26", "Q28", "Q45", "Q46"]  #, "Q28", "Q37"    #select node is picked automatically
+select_exception_rule_ids=["Q3", "Q7", "Q12", "Q13", "Q26", "Q28","Q34", "Q45", "Q46"]  #, "Q28", "Q37"    #select node is picked automatically
 
 #Geometry relations
 spatial_filter_relations = ['strdf:right', 'strdf:below', 'strdf:above', 'strdf:left']
@@ -35,10 +35,12 @@ node_properties={
     #                     ["http://www.w3.org/2006/time#hasBeginning", "ChangeType_"]]
 }
 
-online_exceptions = ["Q22", "Q28"]
+online_exceptions = ["Q22", "Q34"]  # "Q28" "Q22"
 
-experiment_path = "200_cnt_new"
+experiment_path = "test_Q1_cnt_"
 
 question_template_path = "resources/Checked_Question_Templates.csv"
 invalid_rules_path = "resources/invalid_rules.json"
 rules_path = "resources/rules3.tsv"
+counties_dates_path = "resources/county_dates_changedates.csv"
+county_dates_changes = "resources/county_date_change_geo_event.csv"
