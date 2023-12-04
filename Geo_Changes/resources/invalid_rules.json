@@ -1,0 +1,152 @@
+{
+  "rules": [
+    {
+      "rule": "Q1",
+      "valid": true
+    },
+    {
+      "rule": "Q2",
+      "valid": false
+    },
+    {
+      "rule": "Q3",
+      "valid": true
+    },
+    {
+      "rule": "Q4",
+      "valid": true
+    },
+    {
+      "rule": "Q5",
+      "valid": true
+    },
+    {
+      "rule": "Q7",
+      "valid": true
+    },
+    {
+      "rule": "Q8",
+      "valid": true
+    },
+    {
+      "rule": "Q9",
+      "valid": false
+    },
+    {
+      "rule": "Q10",
+      "valid": true
+    },
+    {
+      "rule": "Q11",
+      "valid": true
+    },
+    {
+      "rule": "Q12",
+      "valid": true
+    },
+    {
+      "rule": "Q13",
+      "valid": true
+    },
+    {
+      "rule": "Q15",
+      "valid": true
+    },
+    {
+      "rule": "Q17",
+      "valid": true
+    },
+    {
+      "rule": "Q18",
+      "valid": true
+    },
+    {
+      "rule": "Q22",
+      "valid": true
+    },
+    {
+      "rule": "Q23",
+      "valid": true
+    },
+    {
+      "rule": "Q24",
+      "valid": true
+    },
+    {
+      "rule": "Q25",
+      "valid": true
+    },
+    {
+      "rule": "Q26",
+      "valid": true
+    },
+    {
+      "rule": "Q27",
+      "valid": true
+    },
+    {
+      "rule": "Q28",
+      "valid": true
+    },
+    {
+      "rule": "Q29",
+      "valid": true
+    },
+    {
+      "rule": "Q31",
+      "valid": true
+    },
+    {
+      "rule": "Q34",
+      "valid": true
+    },
+    {
+      "rule": "Q35",
+      "valid": true
+    },
+    {
+      "rule": "Q36",
+      "valid": true
+    },
+    {
+      "rule": "Q37",
+      "valid": true
+    },
+    {
+      "rule": "Q38",
+      "valid": true
+    },
+    {
+      "rule": "Q40",
+      "valid": true
+    },
+    {
+      "rule": "Q41",
+      "valid": true
+    },
+    {
+      "rule": "Q42",
+      "valid": true
+    },
+    {
+      "rule": "Q43",
+      "valid": true
+    },
+    {
+      "rule": "Q44",
+      "valid": true
+    },
+    {
+      "rule": "Q45",
+      "valid": true
+    },
+    {
+      "rule": "Q46",
+      "valid": true
+    },
+    {
+      "rule": "Q47",
+      "valid": true
+    }
+  ]
+}

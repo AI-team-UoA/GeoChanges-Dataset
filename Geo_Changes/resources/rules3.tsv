@@ -1,0 +1,42 @@
+Graph ID	part0	part1	part2	part3	part4	part5	rule1	rule2	qvariable=County0	qvariable=Interval	qvariable=Geometry	qvariable=Change	qvariable=Event		
+Q1	hcb:County_0	xsd:date_0					if hcb:CountyVersion_0 in Q then hcb:County_0 must also be in Q	If hcb:County_Version node in the query then County must also be in the query	"All existing counties during I_0  SELECT ?hcb:County_0 WHERE {   hcb:County_0 ?p1 ?hcb:CountyVersion_O .  ?hcb:CountyVersion_0 ?p2 ?time:Interval_0 .  ?time:Interval_0 ""hasBeginning"" ?start .  ?start xsd:Date ""2017-01-01""^^xsd:date . } (?time:Interval_0 is an actual interval)"	When did C_0 existed?				What was the name of X county from date1 to date2?	
+Q3	hcb:County_0	hcb:CountyVersion_0	time:Interval_0						Which counties have been in area G_i during I_0 (where G_i a polygon defined by the user)	When was hcb:County_0 within G_i	The geometry of hcb:County_0 during/before/after I_0			What is the current location of CAHAWBA?	
+		hcb:CountyVersion_0	geo:Geometry_0												
+Q4	hcb:County_0	hcb:CountyVersion_0	tsnchange:Change_0				If Change \in Q 	"then generate more queries by replacing ""Change"" with all subclasses"	Which counties were an output of a change/expansion/merge			All changes for hcb:County_0		P1. When did Washington appear? P4. Which counties are extinct?	P5a. Which counties appeared in 1821?
+Q7	hcb:County_0	hcb:CountyVersion_0	geo:Geometry_0						-		All geometries of the countries that have changed at some point in history	What change happened to the counties within G_i  (where G_i a polygon defined by the user)			
+		hcb:CountyVersion_0	tsnchange:Change_0												
+Q12	tsnchange:Change_0	sem:Event_0										Which changes were caused by an event	Which events  caused a change	What kind of events typically lead to the renaming of counties? How many battles have lead to the extension of counties in the 19th century?	
+Q13	hcb:County_0	hcb:CountyVersion_0	tsnchange:Change_0	sem:Event_0					Which counties were affected by an event and which event was this			-	Which counties were affected by an event and which event was this	P2. What caused the creation of Maine County? Why did CAHAWBA become extinct? Why has  county type of change temporal property date1 (and date2)? How many battles have lead to the extension of counties in the 19th century?  Which counties did the 1st Territorial Legislative Session affect?	
+Q18	hcb:County_0	hcb:CountyVersion_0	time:Interval_0					"I_0, I_1 must overlap "	Which counties bordered other  counties (X county) during I_0?	"During what period did C_0, C_1 border?"					
+		hcb:CountyVersion_0	hcb:CountyVersion_1	hcb:County_1											
+		hcb:CountyVersion_0	hcb:CountyVersion_1	time:Interval_1											
+Q22	hcb:County_0	hcb:CountyVersion_0	geo:Geometry_0					"I_0, I_1 must overlap "	Which counties were in R (some not materialized geospatial relation) with other counties/C_1 during I_0 	During what period were the counties in R relationship?	The geometry of neighboring counties/ counties neighboring C_1 during I_0				
+		hcb:CountyVersion_0	time:Interval_0																								
+		hcb:County_1	hcb:CountyVersion_1	geo:Geometry_1												
+		hcb:CountyVersion_1	time:Interval_1												
+Q23	hcb:County_0	hcb:CountyVersion_0	hcb:CountyVersion_1												
+		hcb:CountyVersion_0	hcb:CountyVersion_1	hcb:County_1											
+		hcb:CountyVersion_0	tsnchange:Change_0												
+Q26	hcb:County_0	hcb:CountyVersion_0	hcb:CountyVersion_1	hcb:County_1					Which neighboring counties were affected by an event			"What event affected both C_0, C_1"			
+		hcb:CountyVersion_0	hcb:CountyVersion_1	tsnchange:Change_1	sem:Event_0										
+		hcb:CountyVersion_0	tsnchange:Change_0	sem:Event_0										In EVENT how was the geometry of COUNTY changed?	
+Q28	hcb:County_0	hcb:CountyVersion_0	hcb:CountyVersion_1	hcb:County_1																							
+		hcb:CountyVersion_0	geo:Geometry_0												
+		hcb:CountyVersion_0	tsnchange:Change_0												
+Q34	hcb:County_0	hcb:CountyVersion_0	tsnchange:Change_0	sem:Event_0												
+		hcb:County_1	hcb:CountyVersion_1	geo:Geometry_1									Which event affected the counties south of X county?																								
+		hcb:CountyVersion_0	geo:Geometry_0												
+Q40	hcb:County_0	hcb:CountyVersion_0	hcb:StateVersion_0	hcb:State_0					Which were the counties of hcb:State_0 during I_0?					In which state did ADAMS belong before/after/during Date?	
+		hcb:CountyVersion_0	hcb:StateVersion_0	time:Interval_0											
+Q42	hcb:County_0	hcb:CountyVersion_0	hcb:StateVersion_0	hcb:State_0						When was county x incorporated to state y?					
+		hcb:CountyVersion_0	hcb:StateVersion_0	time:Interval_0											
+		hcb:CountyVersion_0	tsnchange:Change_0												
+Q43	hcb:County_0	hcb:CountyVersion_0	hcb:StateVersion_0	hcb:State_0						When was state x extended by the county y?					
+		hcb:CountyVersion_0	hcb:StateVersion_0	tsnchange:Change_0											
+		hcb:CountyVersion_0	hcb:StateVersion_0	time:Interval_0											
+Q45	hcb:County_0	hcb:CountyVersion_0	hcb:StateVersion_0	hcb:State_0						When was county x incorporated to state y?					
+		hcb:CountyVersion_0	hcb:StateVersion_0	time:Interval_0											
+		hcb:CountyVersion_0	tsnchange:Change_0	sem:Event_0											
+Q46	hcb:County_0	hcb:CountyVersion_0	hcb:StateVersion_0	hcb:State_0						When was state x extended by the county y?					
+		hcb:CountyVersion_0	hcb:StateVersion_0	tsnchange:Change_0	sem:Event_0										
+		hcb:CountyVersion_0	hcb:StateVersion_0	time:Interval_0											
