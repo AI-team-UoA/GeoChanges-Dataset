@@ -134,5 +134,4 @@ dmypy.json
 generated_queries/
 test.py
 resources/rdf_dump
-resources/
 tests/

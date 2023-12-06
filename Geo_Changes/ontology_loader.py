@@ -5,7 +5,7 @@ import random
 import networkx as nx
 from rdflib import Graph, OWL, RDF, BNode, TIME, Namespace
 
-from namespaces import SEM, TSN, TSE, GEO, TSNCHANGE, HGC
+from namespaces import SEM, TSN, TSE, GEO, TSNCHANGE, HCB
 
 
 class LabelGenerator:
@@ -40,7 +40,7 @@ def get_default_graph():
     g.bind("geo", GEO)
     g.bind("time", TIME)
     g.bind("rdf", RDF)
-    g.bind("hgc", HGC)
+    g.bind("hcb", HCB)
 
     prefixes = {}
     for prefix, namespace in g.namespace_manager.store.namespaces():
@@ -95,7 +95,7 @@ def get_ontology(directed=True):
                 uris = G.get_edge_data(src, dst)["uris"]
             # print("LAB:", row.p, lbl_gen.get_label(g, row.p, True))
             uris.append(lbl_gen.get_label(g, row.p, True))
-            if ((src == "hgc:CountyVersion_0" and dst == "hgc:StateVersion_0") or (dst == "hgc:CountyVersion_0" and src == "hgc:StateVersion_0")) and "sem:geospatialProperty" in uris:
+            if ((src == "hcb:CountyVersion_0" and dst == "hcb:StateVersion_0") or (dst == "hcb:CountyVersion_0" and src == "hcb:StateVersion_0")) and "sem:geospatialProperty" in uris:
                 uris.remove("sem:geospatialProperty")
             print(src, " -- ",dst," -- ", uris)
             G.add_edge(src, dst, uris=uris)
@@ -119,9 +119,9 @@ def get_ontology(directed=True):
                 data_type_properties[domain_uri_lbl] = []
             data_type_properties[domain_uri_lbl].append(lbl_gen.get_label(g, row.p, True))
 
-    dependencies = {TIME.Interval: TSNCHANGE.CountyVersion, GEO.Geometry: TSNCHANGE.CountyVersion}
-    groups = [[TIME.Interval, GEO.Geometry, TSNCHANGE.CountyVersion], [SEM.Event], [TSNCHANGE.State],
-              [TSNCHANGE.County], [TSNCHANGE.Change], [TSNCHANGE.State], [TSNCHANGE.StateVersion]]
+    dependencies = {TIME.Interval: HCB.CountyVersion, GEO.Geometry: HCB.CountyVersion}
+    groups = [[TIME.Interval, GEO.Geometry, HCB.CountyVersion], [SEM.Event], [HCB.State],
+              [HCB.County], [TSNCHANGE.Change], [HCB.State], [HCB.StateVersion]]
     number_of_repetitions = 2
     dependency_constraints = dict()
 

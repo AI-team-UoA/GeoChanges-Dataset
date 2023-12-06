@@ -2,10 +2,10 @@ from rdflib.namespace import DefinedNamespace, Namespace
 from rdflib.term import URIRef
 
 
-class HGC(DefinedNamespace):
+class HCB(DefinedNamespace):
     """
      Territorial Statistical Nomenclature Change Ontology
-    Generated from: http://lig-tdcge.imag.fr/hgc/index.html
+    Generated from: http://lig-tdcge.imag.fr/hcb/index.html
     """
 
     # TODO: Add other classes and properties

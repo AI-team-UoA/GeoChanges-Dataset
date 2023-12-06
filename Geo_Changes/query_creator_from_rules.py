@@ -31,12 +31,11 @@ class QueryGeneratorFromRules:
         self.G = None
         self.rules = None
         self.forbidden_queries = []
-        self.rules_with_valid_queries = None
+        self.rules_with_valid_queries = None  # A dictionary that holed all valid rules
         self.queries_without_result = set()
-        self.online = online
         self.class_instances = class_instances
 
-    # Returns a dictionary for each edge between 2 counties versions, checks if they come from the same or different county
+    # Returns a dictionary for each edge between 2 counties versions, checks if they come from the same or different county/state
     def versions_of_same_county(self, rule):       
         same_county_node_versions={}
         if rule_type == "state":
@@ -47,15 +46,15 @@ class QueryGeneratorFromRules:
         county2=None
 
         for edge in rule.edges:
-            if edge[0].split("_")[0] == "hgc:"+entity_type+"Version" and edge[1].split("_")[0] == "hgc:"+entity_type+"Version":
+            if edge[0].split("_")[0] == "hcb:"+entity_type+"Version" and edge[1].split("_")[0] == "hcb:"+entity_type+"Version":
                 for n1,n2 in rule.edges:
-                    if n1 == edge[0] and n2.split("_")[0] == "hgc:"+entity_type:
+                    if n1 == edge[0] and n2.split("_")[0] == "hcb:"+entity_type:
                         county1 = n2
-                    elif n2 == edge[0] and n1.split("_")[0] == "hgc:"+entity_type:
+                    elif n2 == edge[0] and n1.split("_")[0] == "hcb:"+entity_type:
                         county2 = n1
-                    if n1 == edge[1] and n2.split("_")[0] == "hgc:"+entity_type:
+                    if n1 == edge[1] and n2.split("_")[0] == "hcb:"+entity_type:
                         county2 = n2
-                    elif n2 == edge[1] and n1.split("_")[0] == "hgc:"+entity_type:
+                    elif n2 == edge[1] and n1.split("_")[0] == "hcb:"+entity_type:
                         county2 = n1
                 if county1 == county2:            #if the county versions are from the same county its true 
                     same_county_node_versions[tuple(edge)] = True
@@ -89,6 +88,7 @@ class QueryGeneratorFromRules:
         to_remove = set()
         ### Load rule graphs
         for rule in self.rules.values():
+            # Skip invalid queries
             if self.rules_with_valid_queries and rule.id not in self.rules_with_valid_queries:
                 to_remove.add(rule)
                 continue
@@ -124,7 +124,7 @@ class QueryGeneratorFromRules:
 
         return to_remove
 
-
+    # create a dictionaty with valid rules (not metion on invalid rules.json)
     def load_forbidden_queries(self, path):
         with open(path) as json_file:
             json_validity = json.load(json_file)["rules"]
@@ -150,7 +150,7 @@ class QueryGeneratorFromRules:
 
         return query
 
-
+    # A function that adds properties if needed based on node_properties dictionary in config
     def add_properties(self, leaf_nodes, query: SPARQLQueryGraph):
         new_edges = set()
 
@@ -174,7 +174,7 @@ class QueryGeneratorFromRules:
     def generate_query(self, rule_graph_id, print_info: bool = False):
         sparql_query_graph = self.create_sparql_query_graph(rule_graph_id, print_info)
         sparql_query_graph = self.add_geometry_values(sparql_query_graph)
-        if not self.online:
+        if sparql_query_graph.rule.id not in online_exceptions:
             sparql_query_graph = self.add_filters(sparql_query_graph)
         sparql_query_graph = self.replace_uri_nodes(sparql_query_graph)
 
@@ -188,7 +188,11 @@ class QueryGeneratorFromRules:
 
         return sparql_query_graph
 
-
+    # Creation of SPARQL query GRAPH
+        # leaf_nodes
+        # select_node
+        # uri_nodes
+        # other_nodes
     def create_sparql_query_graph(self, rule_graph_id, print_info: bool = False):
         # Select rule and rule graph
         rule = self.rules[rule_graph_id]
@@ -244,13 +248,14 @@ class QueryGeneratorFromRules:
         else:
             a_select_nodes_t = allowed_select_node_types.copy()
 
-            if rule.id in rules_with_start_end:
+            if rule.id in rules_with_start_end:   # Some rules specified for our subgraphs 
                 a_select_nodes_t = a_select_nodes_t + ['xsd:date']
             elif rule.id in ["Q42"]:
-                a_select_nodes_t.remove("hgc:State")
+                a_select_nodes_t.remove("hcb:State")
             elif rule.id in ["Q43"]:
-                a_select_nodes_t.remove("hgc:County")
-                
+                a_select_nodes_t.remove("hcb:County")
+            
+            # Random choice of select node among appropriate a_select_nodes_t
             created_query.select_node = random.choice(
             [node for node in list(leaf_nodes) + created_query.other_nodes if created_query.node_types[node] in a_select_nodes_t])
         created_query.select_node = created_query.select_node.split("_")[0]+"_0"
@@ -264,7 +269,7 @@ class QueryGeneratorFromRules:
             print("select_node", created_query.select_node)
             print("uri_nodes", created_query.uri_nodes)
             print("other_nodes", created_query.other_nodes)
-        # for each edge, select one property
+        # for each edge, select one valid property
         same_county_node_versions=self.versions_of_same_county(rule)
         print(same_county_node_versions)
         print(random_graph.edges(data=True))
@@ -309,11 +314,10 @@ class QueryGeneratorFromRules:
             online = True
         else:
             online = False
-        if online:
 
+        if online:
             counties, g_rel = sparql_query_graph.create_ask_online_query(self.prefix_dict)
             sparql_query_graph = add_spatial_filters(sparql_query_graph, g_rel)
-
 
             r_operator = random.choice([" < ", " > "])
             if r_operator == " < ":
@@ -322,9 +326,9 @@ class QueryGeneratorFromRules:
                 r_date = random_online_date(min(counties.iloc[0]["date"], counties.iloc[1]["date"]), r_operator)
             sparql_query_graph = add_temporal_filters(sparql_query_graph, r_date, r_operator) 
             types_names = {
-                 "hgc:County":"county",
+                 "hcb:County":"county",
                  "ChangeType":"ch_type",
-                 "hgc:State":"state",
+                 "hcb:State":"state",
             }
 
             for uri_node in sparql_query_graph.uri_nodes:
