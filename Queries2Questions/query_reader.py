@@ -12,10 +12,10 @@ from dateutil.parser import parse
 class queries_data:
     def __init__(self,query_file):
         self.processed_df = pd.DataFrame(data = None, 
-                               columns = ['Q_id','Instances','Select_type', 'Predicates', "Filters", "SparqlQuery"],
+                               columns = ['Q_id','Instances','Select_type', 'Predicates', "Filters", "SparqlQuery", "Answer"],
                               )
         self.original_dataframe=pd.read_json(query_file, lines=True)  #nrows=1
-        #self.original_dataframe=self.original_dataframe.iloc[9:12]
+        # self.original_dataframe=self.original_dataframe.iloc[9:12]
     
     def extract_select_type(self, select_node, node_types):
         #type_list=[node_types[x] for x in select_node]
@@ -32,12 +32,12 @@ class queries_data:
         for x in row["uri_nodes"]:
             instance_list[x] = row["uri_node_uris"][x]
         
-        if row["county_relation"] != None:
+        if row["county_relation"] != None and str(row["county_relation"])!='nan':
             instance_list["GEOSPATIAL_PROPERTY"] = row["county_relation"]
         # d={}
         # d["type"]=row["seed_node_type"]
         # d_value=row["uri_changes"][0]["uri"]
-        # if d['type']=="tsnchange:County" or d['type']=="tsnchange:State":
+        # if d['type']=="hcb:County" or d['type']=="hcb:State":
         #     d_value=self.uri_2_name(d_value)
         # d['value']=d_value
         # instance_list.append(d)
@@ -54,11 +54,16 @@ class queries_data:
         for f in row["filters"]:
             d={}
             d["f_type"]=f[4] #take the filter type
+            # d["f_text"]="FILTER(" +f[0] +")"
             if d["f_type"]=="temporal":
                 #d["filter_str"]= f[0]
                 d["v1"]=f[1].strip()
                 d["operator"]=f[2].strip()
-                d["v2"]=f[3].strip()              
+                d["v2"]=f[3].strip()
+            elif d["f_type"]=="spatial":
+                d["v1"]=f[1].strip()
+                d["operator"]=f[2].strip()
+                d["v2"]=f[3].strip()             
             filters.append(d)
         return filters 
 
@@ -71,5 +76,8 @@ class queries_data:
         self.processed_df['Predicates']= self.original_dataframe.apply(lambda row: self.extract_predicates(row),axis=1)
         self.processed_df['Filters']= self.original_dataframe.apply(lambda row: self.extract_filter(row),axis=1)
         self.processed_df['SparqlQuery']= self.original_dataframe["sparql_query"]
+        self.processed_df['Answer']= self.original_dataframe["results"]
+
+        # self.processed_df = self.processed_df[self.processed_df["Q_id"] == "SQ28"]
         return self.processed_df
         # print(original_dataframe.head())

@@ -32,12 +32,12 @@ synonyms = {
 
 
 Dict_query_type_mapping={
-    "tsnchange:County": "COUNTY",
+    "hcb:County": "COUNTY",
     "time:Interval": "DATE",
     "geo:Geometry": "GEOMETRY",
     "tsnchange:Change": "CHANGE",
     "sem:Event": "EVENT",
-    'tsnchange:State': "STATE",
+    'hcb:State': "STATE",
     "ChangeType": "CHANGE",
     "ChangeDate": "DATE",
     "area": "AREA",
@@ -45,12 +45,12 @@ Dict_query_type_mapping={
 }
 
 Dict_instances_type_mapping={
-    "tsnchange:County":"COUNTY_NAME",
+    "hcb:County":"COUNTY_NAME",
     "time:Interval":"DATE_NAME",
-    'tsnchange:State':"STATE_NAME",
+    'hcb:State':"STATE_NAME",
     "ChangeType":"CHANGE_TYPE",
     "GEOSPATIAL":"COUNTY_RELATION",
-    #"COUNTY_NAME_2":"tsnchange:County",
+    #"COUNTY_NAME_2":"hcb:County",
 }
 
 Condition_Names=["COUNTY_NAME", "COUNTY_RELATION", "CHANGE_TYPE", "COUNTY_NAME_2", "STATE_NAME", "STATE_NAME_2"]
@@ -74,9 +74,9 @@ class question_template_picker:
 
     def predicate_filtering(self, questions_temp, row):
         if row["Q_id"] in ["Q7", "Q37", "Q28", "SQ7", "SQ37", "SQ28"]: 
-            if "tsnchange:countyVersionAfter" in row["Predicates"]:
+            if "tsnchange:countyVersionAfter" in row["Predicates"] or "tsnchange:stateVersionAfter" in row["Predicates"]:
                 questions_temp=questions_temp[questions_temp["PREDICATE"]=="AFTER"]
-            elif "tsnchange:countyVersionBefore" in row["Predicates"]:
+            elif "tsnchange:countyVersionBefore" in row["Predicates"] or "tsnchange:stateVersionBefore" in row["Predicates"]:
                 questions_temp=questions_temp[questions_temp["PREDICATE"]=="BEFORE"]
             # else:
             #     questions_temp=questions_temp[questions_temp["PREDICATE"]=="BOTH"]
@@ -92,15 +92,15 @@ class question_template_picker:
         f_list= row['Filters']
         print(f_list)
         used_the_date = False
-        used_geometry = False
-        # if 
+        # used_geometry = False
+
         for f in f_list:
-            if f["f_type"] == "temporal":
+            if f["f_type"] == "temporal" and questions_temp["DATE_NAME"]:
                 if used_the_date:
                     continue
                 used_the_date = True
                 # print("MPHKA")
-                questions_temp = questions_temp[questions_temp["DATE_NAME"]]
+                # questions_temp = questions_temp[questions_temp["DATE_NAME"]]
                 date_str = date_string(str(f["v2"]))
                 if f["operator"] == "<":
                     row["Uris_match"]["DATE_NAME"]="before " + date_str
@@ -111,30 +111,40 @@ class question_template_picker:
                 elif f["operator"] == "=":
                     row["Uris_match"]["DATE_NAME"] = "in " + date_str
                     # print(row["Uris_match"])
-            elif f["f_type"] =="spatial":
-                used_geometry = True
-                questions_temp = questions_temp[questions_temp["GEO_RELATION"]]
+            elif f["f_type"] =="spatial" and questions_temp["GEO_RELATION"]:
+                # used_geometry = True
+                # questions_temp = questions_temp[questions_temp["GEO_RELATION"]]
                 row["Uris_match"]["GEO_RELATION"] = f["operator"]
 
-        if used_the_date == False:
-            questions_temp = questions_temp[questions_temp["DATE_NAME"]==False]
-        if used_geometry == False:
-            questions_temp = questions_temp[questions_temp["GEO_RELATION"]==False]
-        questions_temp = self.predicate_filtering(questions_temp, row)
+        # if used_the_date == False:
+        #     questions_temp = questions_temp[questions_temp["DATE_NAME"]==False]
+        # if used_geometry == False:
+        #     questions_temp = questions_temp[questions_temp["GEO_RELATION"]==False]
         print(row["Uris_match"])
         return questions_temp  
 
     def template_picker(self, row):
         # print(row)
-        questions_temp = self.unique_templates[self.unique_templates["Q_type"] == row["Q_id"]]
+        questions_temp1 = self.unique_templates[self.unique_templates["Q_type"] == row["Q_id"]]
         # if row["Q_id"]!="Q7":
         #     return []
-        questions_temp = questions_temp[questions_temp["Answer"] == Dict_query_type_mapping[row["Select_type"]]]
-        questions_temp = self.filtering_question_templates(questions_temp, row)
-
+        questions_temp2 = questions_temp1[questions_temp1["Answer"] == Dict_query_type_mapping[row["Select_type"]]]
+        questions_temp = self.predicate_filtering(questions_temp2, row)
+        
         if questions_temp.shape[0] == 0:
             return []
-        unique_template = questions_temp.sample(n=1).reset_index(drop=True).to_dict(orient='records')[0]
+        
+        random_index = random.choice(questions_temp.index)
+        # random_index = random.randint(0, len(df) - 1)
+        random_row = self.unique_templates.iloc[random_index]
+        print(random_row[Condition_Names].to_list())
+        # Templates that does not have variables are removed in order to avoid duplicates on our results
+        if not any(random_row[Condition_Names+["DATE_NAME"]].to_list()): 
+            self.unique_templates = self.unique_templates.drop(random_index).reset_index(drop=True)
+        
+        unique_template = random_row.to_dict()
+        unique_template = self.filtering_question_templates(unique_template, row)
+        unique_template1 = questions_temp.sample(n=1).reset_index(drop=True).to_dict(orient='records')[0]
         print("++++ PICKED TEMPLATE ++++")
         print(unique_template) 
         #self.I_types = Condition_Names.copy()
@@ -192,7 +202,7 @@ class question_template_picker:
 
     def question_template_production(self, querie_df):
         # querie_df = querie_df[querie_df["Q_id"] == "Q7"]
-        querie_df["Questions_templates"]=querie_df.apply(lambda row: self.template_picker(row), axis=1)
+        querie_df["Questions_templates"] = querie_df.apply(lambda row: self.template_picker(row), axis=1)
         # print(querie_df["Questions_templates"])
         return querie_df
 
@@ -227,8 +237,12 @@ class question_production:
         self.df_questions=df_picked_templates.copy()
 
     def clear_uri(self, k, uri, title_form):
+        if "COUNTY_NAME" in k:
+            s = uri.split(types_to_uris[k])[-3].title().replace("_", " ")
+        else:
+            s=""
         if title_form:
-            return (uri.split(types_to_uris[k])[-1].title()).replace("_", " ")
+            return (uri.split(types_to_uris[k])[-1].title()).replace("_", " ") + ", "+ s
         else:
             return camel_to_words(uri.split(types_to_uris[k])[-1].replace("_", " ")).lower()
 
