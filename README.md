@@ -5,7 +5,7 @@ We introduce GeoChanges QA Dataset. This dataset was semi-automatically created.
 # HCB-Ontology
 ![image](https://github.com/AI-team-UoA/GeoChanges-Dataset/assets/58078938/c19d3a63-6b3b-4222-be56-3221fb98ce58)
 
-The ontology file is presented here [ontology](https://github.com/AI-team-UoA/GeoChanges-Dataset/tree/main/Geo_Changes/resources/ontology)
+The ontology file is presented here [ontology]([https://github.com/AI-team-UoA/GeoChanges-Dataset/tree/main/Geo_Changes/resources/ontology](https://github.com/AI-team-UoA/GeoChanges-Dataset/blob/main/Geo_Changes/resources/ontology/HistoricGeoChanges_upper_with_states2.owl))
 
 # HCB-Knowledge Graph
 The KG followed the HBC-Ontollogy and was populated using The Atlas Historical County Boundaries Dataset (https://digital.newberry.org/ahcb/downloads/states.html)
