@@ -54,6 +54,7 @@ Other variables to be modified inside configuration:
 
 # Queries2Questions
 This component makes the mapping between subgraphs and question templates, and produces natural language questions. The generated sparql queries will be given as input, along with the question templates and will give an output file with the questions, queries and one sample answer.
+    
     python pipeline.py
 
 # Useful links
