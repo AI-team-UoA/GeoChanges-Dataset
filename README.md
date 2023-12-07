@@ -5,11 +5,11 @@ We introduce GeoChanges QA Dataset. This dataset was semi-automatically created.
 # HCB-Ontology
 ![image](https://github.com/AI-team-UoA/GeoChanges-Dataset/assets/58078938/c19d3a63-6b3b-4222-be56-3221fb98ce58)
 
-link to ontology file
+The ontology file is presented here [ontology](https://github.com/AI-team-UoA/GeoChanges-Dataset/tree/main/Geo_Changes/resources/ontology)
 
 # HCB-Knowledge Graph
 The KG followed the HBC-Ontollogy and was populated using The Atlas Historical County Boundaries Dataset (https://digital.newberry.org/ahcb/downloads/states.html)
-
+Publicly available [rdf_dump](https://drive.google.com/drive/folders/1HFWT9dvkB8LRkhOxoLfFum8RRrIzkHQg?usp=sharing) files
 
 # QA Generation Pipeline
 ![Question Generation Pipeline](https://github.com/AI-team-UoA/GeoChanges-Dataset/assets/58078938/f32927b3-1b70-475f-a5eb-5fd5f5f477f1)
@@ -60,10 +60,10 @@ This component makes the mapping between subgraphs and question templates, and p
 # Useful links
 Paper: (link)
 
-We created a QA dataset with 5700 such examples(DOI:  10.5281/zenodo.10257310). 
+We created a QA dataset with 5700 such examples(DOI: 10.5281/zenodo.10257310). 
 
 All the produced SPARQL queries can run to our endpoint in:
-[endpoint](http://pyravlos2.di.uoa.gr:8080/ushistoricalcounties/)
+[HCB-KG endpoint](http://pyravlos2.di.uoa.gr:8080/ushistoricalcounties/)
 
    
 
