@@ -65,7 +65,7 @@ We created a QA dataset with 5700 such examples(DOI: 10.5281/zenodo.10257310).
 All the produced SPARQL queries can run to our endpoint in:
 [HCB-KG endpoint](http://pyravlos2.di.uoa.gr:8080/ushistoricalcounties/)
 
-#Lisence
+# License
 Copyright 2024, AI Team, University of Athens
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
