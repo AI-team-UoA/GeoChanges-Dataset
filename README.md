@@ -65,6 +65,8 @@ We created a QA dataset with 5700 such examples(DOI: 10.5281/zenodo.10257310).
 All the produced SPARQL queries can run to our endpoint in:
 [HCB-KG endpoint](http://pyravlos2.di.uoa.gr:8080/ushistoricalcounties/)
 
+[Ontology](https://github.com/AI-team-UoA/GeoChanges-Dataset/blob/main/Geo_Changes/resources/ontology/hcb_o.rdf)
+
 # License
 Copyright 2024, AI Team, University of Athens
 
