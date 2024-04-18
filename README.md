@@ -3,7 +3,7 @@ We introduce GeoChanges QA Dataset. This dataset was semi-automatically created.
 
 
 # HCB-Ontology
-![image](https://github.com/AI-team-UoA/GeoChanges-Dataset/assets/58078938/c19d3a63-6b3b-4222-be56-3221fb98ce58)
+![image](https://github.com/AI-team-UoA/GeoChanges-Dataset/assets/58078938/31f35bb0-7792-42c1-bd88-f3bfa2745e80)
 
 The ontology file is presented here [ontology](https://github.com/AI-team-UoA/GeoChanges-Dataset/blob/main/Geo_Changes/resources/ontology/hcb_ontology.rdf)
 
@@ -63,7 +63,7 @@ Paper: (link)
 We created a QA dataset with 5700 such examples(DOI: 10.5281/zenodo.10257310). 
 
 All the produced SPARQL queries can run to our endpoint in:
-[HCB-KG endpoint](http://pyravlos2.di.uoa.gr:8080/ushistoricalcounties/)
+[HCB-KG endpoint](https://hcbkg.l3s.uni-hannover.de/sparql)
 
 [Ontology](https://github.com/AI-team-UoA/GeoChanges-Dataset/blob/main/Geo_Changes/resources/ontology/hcb_ontology.rdf)
 
