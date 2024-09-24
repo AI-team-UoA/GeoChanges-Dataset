@@ -9,7 +9,7 @@ The ontology file is presented here [ontology](https://github.com/AI-team-UoA/Ge
 
 # HCB-Knowledge Graph
 The KG followed the HBC-Ontollogy and was populated using The Atlas Historical County Boundaries Dataset (https://digital.newberry.org/ahcb/downloads/states.html)
-Publicly available [rdf_dump](https://drive.google.com/drive/folders/1HFWT9dvkB8LRkhOxoLfFum8RRrIzkHQg?usp=sharing) files
+Publicly available [rdf_dump](https://zenodo.org/records/11508199) files
 
 # QA Generation Pipeline
 ![Question Generation Pipeline](https://github.com/AI-team-UoA/GeoChanges-Dataset/assets/58078938/f32927b3-1b70-475f-a5eb-5fd5f5f477f1)
